@@ -1,0 +1,20 @@
+{
+	"name": "auto-browser",
+	"module": "src/index.ts",
+	"type": "module",
+	"scripts": {
+		"with-deps": "playwright install --with-deps",
+		"format": "prettier --write .",
+		"format:check": "prettier ."
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"prettier": "^3.3.3"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"playwright": "^1.45.3"
+	}
+}
