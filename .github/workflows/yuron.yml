@@ -1,0 +1,15 @@
+name: autob
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+jobs:
+  my-job:
+    name: autob-job
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install
+      - run: bun run with-deps
+      - run: bun src/index.ts

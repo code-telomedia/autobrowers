@@ -1,8 +1,9 @@
 import { chromium, type ElementHandle } from 'playwright';
 import { sleep } from './tools/promises';
 import { randomNum } from './tools/random';
-import { allUAs } from './ua';
+import { allUAs, desktopUAs } from './ua';
 import { iphoneRandom } from './iua';
+import { pickRandom } from './tools/arrays';
 
 type UATYPE = {
 	viewport: {
@@ -36,7 +37,7 @@ async function runFrame(theFrame: ElementHandle<HTMLIFrameElement>) {
 export async function launch() {
 	console.log('launching');
 	const browser = await chromium.launch();
-	const selected = iphoneRandom();
+	const selected = pickRandom(desktopUAs());
 
 	const page = await browser.newPage({
 		userAgent: selected.userAgent,
@@ -45,12 +46,27 @@ export async function launch() {
 
 	console.log('goto root url');
 	await page.goto(rootURL);
+	await sleep(100)
 	await page.evaluate(() => {
 		window.scrollBy(0, window.innerHeight);
 	});
-
-	console.log('find iframes');
-	const locator = page.frameLocator('iframe[aria-label="Advertisement"]').first();
+	await sleep(100);
+	console.log('frame locator');
+	const locator = page.frameLocator('iframe[aria-label="Advertisement"]').last();
+	
+	await sleep(100);
+	const elem = locator.getByRole('link');
+	const texts = (await elem.allInnerTexts());
+	if(texts.length) {
+		console.log("clicking")
+		const tar = elem.last();
+		await tar.scrollIntoViewIfNeeded()
+		await tar.hover();
+		await tar.click();
+		await sleep(1200);
+	} else {
+		console.log("no click")
+	}
 	// await locator
 	await browser.close();
 }

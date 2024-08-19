@@ -217,12 +217,18 @@ export function desktopUAs() {
 
 	return desktopUA.map(item => {
 		return {
+			platform: item.platform,
 			viewport: randomDesktopViewPort(),
 			userAgent: item.userAgent,
 		};
 	});
 }
 
+function macs() {
+	const macDesktops = desktopUAs().filter(item => item.platform === 'Mac');
+	return macDesktops;
+}
+
 export function allUAs() {
-	return [...desktopUAs(), ...mobileUA];
+	return [...desktopUAs(), ...macs(), ...mobileUA];
 }

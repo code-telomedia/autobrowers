@@ -33,6 +33,9 @@ async function launchPage(browser: Browser, goTo: string) {
 		console.log(`start: ${goTo}`);
 
 		await page.goto(goTo);
+		await page.evaluate(() => {
+			window.scrollTo(0, Math.random() * document.body.scrollHeight);
+		});
 
 		// Find a random URL on the same domain and visit it
 		const links = await page.$$eval('a', anchors => anchors.map(anchor => anchor.href));
@@ -48,10 +51,10 @@ async function launchPage(browser: Browser, goTo: string) {
 			await page.evaluate(() => {
 				window.scrollTo(0, document.body.scrollHeight);
 			});
-			await sleep(800);
+			await sleep(randomNum(500, 1100));
 			const randomLinkAgain = sameDomainLinks[Math.floor(Math.random() * sameDomainLinks.length)];
 			await page.goto(randomLinkAgain);
-			await sleep(500);
+			await sleep(randomNum(500, 1100));
 			console.log(`visited ${randomLink}, ${randomLinkAgain}`);
 		}
 	} catch (err) {
