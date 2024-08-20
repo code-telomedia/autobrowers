@@ -1,3 +1,5 @@
+import { macuas } from './macuas';
+
 const mobileUA = [
 	{
 		viewport: { width: 375, height: 812 },
@@ -225,10 +227,10 @@ export function desktopUAs() {
 }
 
 function macs() {
-	const macDesktops = desktopUAs().filter(item => item.platform === 'Mac');
-	return macDesktops;
+	//return macuas;
+	return desktopUAs().filter(i => i.platform === 'Mac');
 }
 
 export function allUAs() {
-	return [...desktopUAs(), ...macs(), ...mobileUA];
+	return [...macs(), ...desktopUAs(), ...mobileUA];
 }

@@ -35,7 +35,7 @@ async function runFrame(theFrame: ElementHandle<HTMLIFrameElement>) {
 }
 
 export async function launch() {
-	console.log('launching');
+	console.log('yick');
 	const browser = await chromium.launch();
 	const selected = pickRandom(desktopUAs());
 
@@ -46,29 +46,37 @@ export async function launch() {
 
 	console.log('goto root url');
 	await page.goto(rootURL);
-	await sleep(100)
+	await sleep(100);
 	await page.evaluate(() => {
 		window.scrollBy(0, window.innerHeight);
 	});
 	await sleep(100);
 	console.log('frame locator');
 	const locator = page.frameLocator('iframe[aria-label="Advertisement"]').last();
-	
+
 	await sleep(100);
 	const elem = locator.getByRole('link');
-	const texts = (await elem.allInnerTexts());
-	if(texts.length) {
-		console.log("clicking")
+	const texts = await elem.allInnerTexts();
+	if (texts.length) {
+		console.log('clicking');
 		const tar = elem.last();
-		await tar.scrollIntoViewIfNeeded()
+		await tar.scrollIntoViewIfNeeded();
 		await tar.hover();
 		await tar.click();
 		await sleep(1200);
 	} else {
-		console.log("no click")
+		console.log('no click');
 	}
 	// await locator
 	await browser.close();
 }
 
-launch();
+// launch();
+export async function yick() {
+	try {
+		await launch();
+		console.log('-------------------');
+	} catch (err) {
+		console.log((err as Error).message);
+	}
+}

@@ -5,6 +5,7 @@ import { sleep } from './tools/promises';
 import { randomNum } from './tools/random';
 import { allUAs } from './ua';
 import { pickRandom } from './tools/arrays';
+import { yick } from './click';
 
 type UATYPE = {
 	viewport: {
@@ -98,6 +99,7 @@ async function main() {
 	for (let i = 0; i < times; i++) {
 		promises.push(visitUrl(rootURL, 0));
 	}
+	// promises.push(yick());
 	await Promise.all(promises);
 	console.log('finished');
 	process.exit(0);
