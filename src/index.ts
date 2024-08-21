@@ -31,8 +31,6 @@ async function launchPage(browser: Browser, goTo: string) {
 	// });
 
 	try {
-		console.log(`start: ${goTo}`);
-
 		await page.goto(goTo);
 		await page.evaluate(() => {
 			window.scrollTo(0, Math.random() * document.body.scrollHeight);
@@ -46,7 +44,7 @@ async function launchPage(browser: Browser, goTo: string) {
 		if (sameDomainLinks.length > 0) {
 			const randomLink = sameDomainLinks[Math.floor(Math.random() * sameDomainLinks.length)];
 			const clickLink = `a[href="${new URL(randomLink).pathname}"]`;
-			console.log(`visit: ${clickLink}`);
+			console.log(`visit 1: ${clickLink}`);
 			await page.click(clickLink);
 			await page.waitForURL(randomLink);
 			await page.evaluate(() => {
@@ -56,28 +54,32 @@ async function launchPage(browser: Browser, goTo: string) {
 			const randomLinkAgain = sameDomainLinks[Math.floor(Math.random() * sameDomainLinks.length)];
 			await page.goto(randomLinkAgain);
 			await sleep(randomNum(500, 1100));
-			console.log(`visited ${randomLink}, ${randomLinkAgain}`);
+			console.log(`visit 2: ${randomLink}, ${randomLinkAgain}`);
 		}
 	} catch (err) {
 		console.log((err as Error).message);
 	} finally {
-		page.close();
+		await page.close();
 	}
 }
 
-async function visitUrl(goTo: string, counter = 0) {
+async function visitUrl(browser: Browser, goTo: string, counter = 0) {
 	async function roll() {
 		const pagePromises = [];
-		for (let i = 0; i < 2; i++) {
-			await sleep(100);
+		for (let i = 0; i < 12; i++) {
 			pagePromises.push(launchPage(browser, goTo));
 		}
 		await Promise.all(pagePromises);
 	}
 
-	const browser = await firefox.launch();
 	await roll();
-	await roll();
+}
+
+async function main() {
+	console.log('launch');
+	const browser = await chromium.launch();
+	await visitUrl(browser, rootURL, 0);
+	// promises.push(yick());
 	await browser.close();
 
 	process.on('SIGINT', async () => {
@@ -91,16 +93,8 @@ async function visitUrl(goTo: string, counter = 0) {
 		console.log('Browser closed due to SIGTERM');
 		process.exit(0);
 	});
-}
 
-async function main() {
-	const times = 2;
-	const promises = [];
-	for (let i = 0; i < times; i++) {
-		promises.push(visitUrl(rootURL, 0));
-	}
-	// promises.push(yick());
-	await Promise.all(promises);
+	await browser.close();
 	console.log('finished');
 	process.exit(0);
 }
