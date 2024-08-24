@@ -32,6 +32,7 @@ async function launchPage(browser: Browser, goTo: string) {
 
 	try {
 		await page.goto(goTo);
+		await sleep(randomNum(500, 1100));
 		await page.evaluate(() => {
 			window.scrollTo(0, Math.random() * document.body.scrollHeight);
 		});
