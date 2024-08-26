@@ -6,6 +6,7 @@ import { randomNum } from './tools/random';
 import { allUAs } from './ua';
 import { pickRandom } from './tools/arrays';
 import { yick } from './click';
+import { focusss } from './focus';
 
 type UATYPE = {
 	viewport: {
@@ -15,7 +16,7 @@ type UATYPE = {
 	userAgent: string;
 };
 
-async function launchPage(browser: Browser, goTo: string) {
+async function launchPage(browser: Browser, goTo: string, focus: boolean) {
 	await sleep(4);
 	const UAs: UATYPE[] = allUAs();
 	const selected = UAs[Math.floor(Math.random() * UAs.length)];
@@ -31,11 +32,17 @@ async function launchPage(browser: Browser, goTo: string) {
 	// });
 
 	try {
+		console.log(`visit 0: ${goTo}`);
 		await page.goto(goTo);
 		await sleep(randomNum(500, 1100));
 		await page.evaluate(() => {
 			window.scrollTo(0, Math.random() * document.body.scrollHeight);
 		});
+		await sleep(400);
+		if (focus) {
+			await focusss(page);
+			return;
+		}
 
 		// Find a random URL on the same domain and visit it
 		const links = await page.$$eval('a', anchors => anchors.map(anchor => anchor.href));
@@ -64,11 +71,11 @@ async function launchPage(browser: Browser, goTo: string) {
 	}
 }
 
-async function visitUrl(browser: Browser, goTo: string, counter = 0) {
+async function visitUrl(browser: Browser, goTo: string, focus: boolean) {
 	async function roll() {
 		const pagePromises = [];
 		for (let i = 0; i < 12; i++) {
-			pagePromises.push(launchPage(browser, goTo));
+			pagePromises.push(launchPage(browser, goTo, focus));
 		}
 		await Promise.all(pagePromises);
 	}
@@ -77,25 +84,14 @@ async function visitUrl(browser: Browser, goTo: string, counter = 0) {
 }
 
 async function main() {
-	console.log('launch');
-	const browser = await chromium.launch();
-	await visitUrl(browser, rootURL, 0);
-	// promises.push(yick());
-	await browser.close();
-
-	process.on('SIGINT', async () => {
+	async function intering(focus: boolean) {
+		console.log('launch');
+		const browser = await chromium.launch();
+		await visitUrl(browser, rootURL, focus);
+		// promises.push(yick());
 		await browser.close();
-		console.log('Browser closed due to SIGINT');
-		process.exit(0);
-	});
-
-	process.on('SIGTERM', async () => {
-		await browser.close();
-		console.log('Browser closed due to SIGTERM');
-		process.exit(0);
-	});
-
-	await browser.close();
+	}
+	await Promise.allSettled([intering(true), intering(false)])
 	console.log('finished');
 	process.exit(0);
 }
